@@ -1,0 +1,32 @@
+// Project #1-a
+//
+// Design a circuit to check the three conditions
+// about serving potatoes, noodles, or bread.
+//
+// Use built-in gates Not, And, Or, Nand, Xor.
+//
+
+CHIP Food {
+    IN potatoes, noodles, bread;
+    OUT cond1, cond2, cond3, okay;
+    
+    PARTS:
+    // Put your code here:
+    // Nots for each input
+    Not(in=potatoes, out=notpotatoes);
+    Not(in=noodles, out=notnoodles);
+    Not(in=bread, out=notbread);
+    
+    // condition1
+    Or(a=potatoes, b=noodles, out=r0);
+    Nand(a=potatoes, b=noodles, out=r1);
+    And(a=r0, b=r1, out=cond1);
+    
+    // condition2
+    Or(a=notpotatoes, b=notbread, out=cond2);
+
+    // condition3
+    Or(a=bread, b=notpotatoes, out=r2);
+    Not(in=r2, out=r3);
+    Or(a=r3, b=notnoodles, out=cond3);
+}

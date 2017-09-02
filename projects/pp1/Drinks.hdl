@@ -1,0 +1,31 @@
+// Project #1-b
+//
+// Design a circuit to check the three conditions
+// about serving wine, water, or juice.
+//
+// Use built-in gates Not, And, Or, Nand, Xor.
+//
+
+CHIP Drinks {
+    IN wine, water, juice;
+    OUT cond1, cond2, cond3, okay;
+
+    PARTS:
+    // Put your code here:
+    // Nots for each input
+    Not(in=wine, out=notwine);
+    Not(in=water, out=notwater);
+    Not(in=juice, out=notjuice);
+
+    // condition1
+    Or(a=water, b=wine, out=cond1);
+
+    // condition2
+    Nand(a=wine, b=water, out=r0);
+    Or(a=r0, b=notjuice, out=cond2);
+
+    // condition3
+    Or(a=juice, b=notwater, out=r1);
+    Not(in=r1, out=r2);
+    Or(a=r2, b=notwine, out=cond3);
+}
