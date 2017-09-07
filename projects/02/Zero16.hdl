@@ -10,4 +10,21 @@ CHIP Zero16 {
 
     PARTS:
     // Put your code here:
+    Not(in=zero, out=notzero);
+    And(a=a[0], b=notzero, out=out[0]);
+    And(a=a[1], b=notzero, out=out[1]);
+    And(a=a[2], b=notzero, out=out[2]);
+    And(a=a[3], b=notzero, out=out[3]);
+    And(a=a[4], b=notzero, out=out[4]);
+    And(a=a[5], b=notzero, out=out[5]);
+    And(a=a[6], b=notzero, out=out[6]);
+    And(a=a[7], b=notzero, out=out[7]);
+    And(a=a[8], b=notzero, out=out[8]);
+    And(a=a[9], b=notzero, out=out[9]);
+    And(a=a[10], b=notzero, out=out[10]);
+    And(a=a[11], b=notzero, out=out[11]);
+    And(a=a[12], b=notzero, out=out[12]);
+    And(a=a[13], b=notzero, out=out[13]);
+    And(a=a[14], b=notzero, out=out[14]);
+    And(a=a[15], b=notzero, out=out[15]);
 }
