@@ -1,0 +1,17 @@
+Not = ~in
+Error1 = a * * b
+And = a * b
+Or = a + b
+Xor = ~a * b + a * ~b
+Test1 = ~a + b * c
+Test2 = a -> ~b + c
+Nor = ~(a + b)
+Nand1 = ~(a * b)
+Nand2 = ~x + ~y
+Equiv = (inA -> inB) * (~inA -> ~inB)
+Error2 = a
+LongNameTest = longInputA -> xy + ~xyz * xyzu + ~xyzuvwabc
+Boat = (wolf + cabbage) * goat * ~farmer + (~wolf + ~cabbage) * ~goat * farmer
+TV = (a -> b) * (~c + ~d) * ~(b * ~c + ~b * c) * (~a -> b * d)
+Food = (potatoes * ~noodles + ~potatoes * noodles) * (potatoes -> ~bread) * (bread + ~potatoes -> ~noodles)
+Drinks = (~water -> wine) * (wine * water -> ~juice) * (juice + ~water -> ~wine)
