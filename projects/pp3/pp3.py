@@ -37,7 +37,6 @@ BINARY_OPERATORS = {
             '->': lambda a, b: not a or b,
 }
 
-Constant = namedtuple('Constant', 'value')
 Variable = namedtuple('Variable', 'name')
 UnaryOp = namedtuple('UnaryOp', 'op operand')
 BinaryOp = namedtuple('BinaryOp', 'left op right')
@@ -59,7 +58,6 @@ def parse(s):
     """Parse s as a Boolean expression and return the parse tree."""
     tokens = tokenize(s)        # Stream of tokens.
     token = next(tokens)        # The current token.
-    print("toekn:[{}]".format(token))
 
     def error(expected):
         # Current token failed to match, so raise syntax error.
@@ -166,18 +164,15 @@ if __name__ == '__main__':
             ## TO DO
 
             # Create chip
-            f_output = open("{}.hdl".format(name), 'w')
-            f_output.write("// {} Chip\n".format(name))
-            f_output.write("// Generate by cujun's formula compiler\n\n")
-            f_output.write("CHIP {} ".format(name))
-            f_output.write("{\n")
-            # TO DO: Print input pins
-            input_pins = "  IN " + ";\n"
-            f_output.write(input_pins)
-            f_output.write("  OUT out;\n\n")
-            f_output.write("  PARTS:\n")
-            # TO DO: Print Nands
-            f_output.write("}")
-            print("[{}] Chip Done.".format(name))
+            with open("{}.hdl".format(name), 'w') as f_output:
+                f_output.write("// {} Chip\n".format(name))
+                f_output.write("// Generate by cujun's formula compiler\n\n")
+                f_output.write("CHIP {} {{\n".format(name))
+                f_output.write("    IN {};\n".format(", ".join(INPUT_PINS)))
+                f_output.write("    OUT out;\n\n")
+                f_output.write("    PARTS:\n")
+                f_output.write("\t{}\n".format(";\n\t".join(NAND_GATES)))
+                f_output.write("}")
+                print("[{}] Chip Done.".format(name))
     except IOError:
         logging.error("Could not read file: {}".format(INPUT_FILE_NAME))
