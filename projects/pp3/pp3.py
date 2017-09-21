@@ -139,9 +139,9 @@ def parse(s):
             if match(')'):
                 return tree
             else:
-                error("')'")
+                return False
         else:
-            error("term")
+            return False
 
     def unary_expr():
         # Parse a <UnaryExpr> starting at the current token.
@@ -179,7 +179,7 @@ def parse(s):
 
     tree = implication()
     if token != TOKEN_END:
-        error("end of input")
+        return False
     return tree
 
 
@@ -190,15 +190,17 @@ def evaluate(tree, is_root):
     if isinstance(tree, Variable):  # leaf of tree. (base condition)
         return tree.name
     elif isinstance(tree, UnaryOp):
-        return tree.op(evaluate(tree.operand, False), is_root)
+        sub_res = evaluate(tree.operand, False)
+        return tree.op(sub_res, is_root) if sub_res else False
     elif isinstance(tree, BinaryOp):
-        return tree.op(evaluate(tree.left, False), evaluate(tree.right, False), is_root)
+        left_res = evaluate(tree.left, False); right_res = evaluate(tree.right, False)
+        return tree.op(left_res, right_res, is_root) if left_res and right_res else False
     else:
-        raise TypeError("Expected tree, found {!r}".format(type(tree)))
+        return False
 
 
-def error_line():
-    logging.warning("Unexpected line exist... SKIP this!")
+def error_line(chip_name="???"):
+    logging.warning("Unexpected line exists. SKIP [{}] chip!!".format(chip_name))
 
 
 
@@ -225,13 +227,15 @@ if __name__ == '__main__':
             # Build parse tree
             formula_tree = parse(formula)
             logging.debug(formula_tree)
+            if not formula_tree:
+                error_line(name)
+                continue
             logging.debug("Input pins: {}".format(INPUT_PINS))
 
             # Evaluate parse tree to generate Nand gates
-            if isinstance(formula_tree, Variable):
-                error_line()
+            if isinstance(formula_tree, Variable) or not evaluate(formula_tree, True):
+                error_line(name)
                 continue
-            evaluate(formula_tree, True)
             logging.debug("Nand gates: {}".format(NAND_GATES))
 
             # Create chip(.hdl file)
