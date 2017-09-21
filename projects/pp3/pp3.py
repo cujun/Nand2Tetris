@@ -5,36 +5,86 @@ import logging
 import re
 from collections import namedtuple
 import operator
-from string import ascii_lowercase, ascii_uppercase
-
-import copy
 
 
+
+
+# File name of input.
+INPUT_FILE_NAME = 'input.txt'
+
+# Input pins
+INPUT_PINS = set()
+
+# Nand gates which we'll write to output file
+NAND_GATES = []
+
+# Index of current pin
+INDEX_PIN = None
 
 
 # Regular expression matching optional whitespace followed by a token
 # (if group 1 matches) or an error (if group 2 matches).
 # TOKEN_RE = re.compile(r'\s*(?:([A-Za-z01()~+*]|->)|(\S))')
-# TOKEN_RE = re.compile(r'(?:(([a-zA-Z][a-zA-Z0-9]*)|[()~+*]|->))')
 TOKEN_RE = re.compile(r'(?:([()~+*]|->|[^\s()~+*]+))')
 VARIABLE_RE = re.compile(r'[a-zA-Z][a-zA-Z0-9]*')
 
 # Special token indicating the end of the input string.
 TOKEN_END = '<end of input>'
 
-# File name of input
-INPUT_FILE_NAME = 'input.txt'
-
-# Map from unary operator to function implementing it.
+# Special functions for processing formula parse tree
+def add_to_nand(a, b, out):
+    global NAND_GATES
+    NAND_GATES.append("Nand(a={}, b={}, out={});".format(a, b, out))
+def gen_argout(is_root):
+    global INDEX_PIN
+    arg_out = "out"
+    if not is_root:
+        arg_out = "pin{}".format(INDEX_PIN)
+        INDEX_PIN = INDEX_PIN + 1
+    return arg_out
+def unary_oper_not(arg_in, is_root):
+    """ Unary opeartor about "NOT" function.
+    Same as NOT gate implementation with NAND gates in our HDL format.
+    """
+    arg_out = gen_argout(is_root)
+    add_to_nand(arg_in, arg_in, arg_out)
+    return arg_out
+def binary_oper_and(arg_a, arg_b, is_root):
+    """ Binary opeartor about "AND" function.
+    Same as AND gate implementation with NAND gates in our HDL format.
+    """
+    arg_out = gen_argout(is_root)
+    arg_temp = gen_argout(False)
+    add_to_nand(arg_a, arg_b, arg_temp)
+    add_to_nand(arg_temp, arg_temp, arg_out)
+    return arg_out
+def binary_oper_or(arg_a, arg_b, is_root):
+    """ Binary opeartor about "AND" function.
+    Same as Or gate implementation with NAND gates in our HDL format.
+    """
+    arg_out = gen_argout(is_root)
+    arg_na = gen_argout(False); arg_nb = gen_argout(False)
+    add_to_nand(arg_a, arg_a, arg_na)
+    add_to_nand(arg_b, arg_b, arg_nb)
+    add_to_nand(arg_na, arg_nb, arg_out)
+    return arg_out
+def binary_oper_impli(arg_a, arg_b, is_root):
+    """ Binary opeartor about "Implication(->)" function.
+    """
+    arg_out = gen_argout(is_root)
+    arg_temp = gen_argout(False)
+    add_to_nand(arg_b, arg_b, arg_temp)
+    add_to_nand(arg_a, arg_temp, arg_out)
+    return arg_out
+# Map from unary operator to special function implementing it.
 UNARY_OPERATORS = {
-            '~': operator.not_,
+            '~': unary_oper_not,
 }
-
-# Map from binary operator to function implementing it.
+# Map from binary operator to special function implementing it.
 BINARY_OPERATORS = {
-            '*': operator.and_,
-            '+': operator.or_,
-            '->': lambda a, b: not a or b,
+            '*': binary_oper_and,
+            '+': binary_oper_or,
+            '->': binary_oper_impli,
 }
 
 Variable = namedtuple('Variable', 'name')
@@ -45,7 +95,8 @@ BinaryOp = namedtuple('BinaryOp', 'left op right')
 
 
 def tokenize(s):
-    """Generate tokens from the string s, followed by TOKEN_END."""
+    """Generate tokens from the string s, followed by TOKEN_END.
+    """
     for m in TOKEN_RE.finditer(s):
         if m.group(1):
             yield m.group(1)
@@ -55,7 +106,8 @@ def tokenize(s):
 
 
 def parse(s):
-    """Parse s as a Boolean expression and return the parse tree."""
+    """Parse s as a Boolean expression and return the parse tree.
+    """
     tokens = tokenize(s)        # Stream of tokens.
     token = next(tokens)        # The current token.
 
@@ -83,7 +135,7 @@ def parse(s):
             token = next(tokens)    # Corner case!!
             return Variable(name=t)
         elif match('('):
-            tree = disjunction()
+            tree = implication()
             if match(')'):
                 return tree
             else:
@@ -113,66 +165,84 @@ def parse(s):
         else:
             return left
 
-    def implication():
-        # Parse an <Implication> starting at the current token.
-        return binary_expr(unary_expr, '->', implication)
-
     def conjunction():
         # Parse a <Conjunction> starting at the current token.
-        return binary_expr(implication, '*', conjunction)
+        return binary_expr(unary_expr, '*', conjunction)
 
     def disjunction():
         # Parse a <Disjunction> starting at the current token.
         return binary_expr(conjunction, '+', disjunction)
 
-    tree = disjunction()
+    def implication():
+        # Parse an <Implication> starting at the current token.
+        return binary_expr(disjunction, '->', implication)
+
+    tree = implication()
     if token != TOKEN_END:
         error("end of input")
     return tree
 
 
+def evaluate(tree, is_root):
+    """Evaluate the expression in the parse tree, so that the evaluated
+    output is a chip of serveral Nand gates which implements this expression.
+    """
+    if isinstance(tree, Variable):  # leaf of tree. (base condition)
+        return tree.name
+    elif isinstance(tree, UnaryOp):
+        return tree.op(evaluate(tree.operand, False), is_root)
+    elif isinstance(tree, BinaryOp):
+        return tree.op(evaluate(tree.left, False), evaluate(tree.right, False), is_root)
+    else:
+        raise TypeError("Expected tree, found {!r}".format(type(tree)))
+
+
+def error_line():
+    logging.warning("Unexpected line exist... SKIP this!")
+
+
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
+
     try:
         lines = list(filter(None, [line.rstrip('\n') for line in open(INPUT_FILE_NAME)]))
         for line in lines:
             # Initializations
-            INPUT_PINS = set()  # Input pins
-            NAND_GATES = []     # Nand gates which we'll write to output file
+            INPUT_PINS = set()
+            NAND_GATES = []
+            INDEX_PIN = 0
             print()
 
             # Split current line into 'Name' and 'Formula' parts
             line_tokenized = list(filter(None, [l.strip() for l in line.split('=')]))
             if len(line_tokenized) != 2:    # SKIP condition
-                logging.warning("Unexpected input line exists. SKIP!!")
+                error_line()
                 continue
             name = line_tokenized[0]; formula = line_tokenized[1]
-            '''
-            print("@@@@@@@@@")
-            tt = tokenize(formula)
-            for ttt in tt:
-                print(ttt)
-            print("@@@@@@@@@")
-            '''
 
             # Build parse tree
-            print(parse(formula))
-            print("Input pins: {}".format(INPUT_PINS))
+            formula_tree = parse(formula)
+            logging.debug(formula_tree)
+            logging.debug("Input pins: {}".format(INPUT_PINS))
 
-            # Process parse tree to generate Nand gates
-            ## TO DO
+            # Evaluate parse tree to generate Nand gates
+            if isinstance(formula_tree, Variable):
+                error_line()
+                continue
+            evaluate(formula_tree, True)
+            logging.debug("Nand gates: {}".format(NAND_GATES))
 
-            # Create chip
+            # Create chip(.hdl file)
             with open("{}.hdl".format(name), 'w') as f_output:
-                f_output.write("// {} Chip\n".format(name))
-                f_output.write("// Generate by cujun's formula compiler\n\n")
-                f_output.write("CHIP {} {{\n".format(name))
-                f_output.write("    IN {};\n".format(", ".join(INPUT_PINS)))
-                f_output.write("    OUT out;\n\n")
-                f_output.write("    PARTS:\n")
-                f_output.write("\t{}\n".format(";\n\t".join(NAND_GATES)))
-                f_output.write("}")
-                print("[{}] Chip Done.".format(name))
+                res = "// {} Chip\n".format(name)
+                res = res + "// Generate by cujun's formula compiler\n\n"
+                res = res + "CHIP {} {{\n".format(name)
+                res = res + "\tIN {};\n".format(", ".join(INPUT_PINS))
+                res = res + "\tOUT out;\n\n\tPARTS:\n"
+                res = res + "\t{}\n}}".format("\n\t".join(NAND_GATES))
+                f_output.write(res)
+                logging.info("[{}] Chip Done.".format(name))
     except IOError:
         logging.error("Could not read file: {}".format(INPUT_FILE_NAME))
