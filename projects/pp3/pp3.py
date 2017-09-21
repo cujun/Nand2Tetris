@@ -76,6 +76,13 @@ def binary_oper_impli(arg_a, arg_b, is_root):
     add_to_nand(arg_b, arg_b, arg_temp)
     add_to_nand(arg_a, arg_temp, arg_out)
     return arg_out
+def binary_oper_nand(arg_a, arg_b, is_root):
+    """ Binary opeartor about "NAND" function.
+    This exists for the optimization cases like ~(a * b), ~a + ~b.
+    """
+    arg_out = gen_argout(is_root)
+    add_to_nand(arg_a, arg_b, arg_out)
+    return arg_out
 # Map from unary operator to special function implementing it.
 UNARY_OPERATORS = {
             '~': unary_oper_not,
@@ -85,6 +92,7 @@ BINARY_OPERATORS = {
             '*': binary_oper_and,
             '+': binary_oper_or,
             '->': binary_oper_impli,
+            '~*': binary_oper_nand,
 }
 
 Variable = namedtuple('Variable', 'name')
@@ -130,9 +138,9 @@ def parse(s):
         # Parse a <Term> starting at the current token.
         nonlocal token
         t = token
-        if VARIABLE_RE.match(t):    # Not match()
+        if VARIABLE_RE.match(t):    # Use special(re) match(), not defined match().
             INPUT_PINS.add(t)
-            token = next(tokens)    # Corner case!!
+            token = next(tokens)    # Corner case!
             return Variable(name=t)
         elif match('('):
             tree = implication()
@@ -148,6 +156,10 @@ def parse(s):
         t = token
         if match('~'):
             operand = unary_expr()
+            if isinstance(operand, UnaryOp):    # Check superfluous negation.
+                return operand.operand
+            elif isinstance(operand, BinaryOp) and operand.op == BINARY_OPERATORS['*']:   # NAND optimization 1.
+                return BinaryOp(left=operand.left, op=BINARY_OPERATORS['~*'], right=operand.right)
             return UnaryOp(op=UNARY_OPERATORS[t], operand=operand)
         else:
             return term()
@@ -161,6 +173,8 @@ def parse(s):
         t = token
         if match(valid_operators):
             right = parse_right()
+            if t == '+' and isinstance(left, UnaryOp) and isinstance(right, UnaryOp):   # NAND optimization 2.
+                return BinaryOp(left=left.operand, op=BINARY_OPERATORS['~*'], right=right.operand)
             return BinaryOp(left=left, op=BINARY_OPERATORS[t], right=right)
         else:
             return left
@@ -249,4 +263,4 @@ if __name__ == '__main__':
                 f_output.write(res)
                 logging.info("[{}] Chip Done.".format(name))
     except IOError:
-        logging.error("Could not read file: {}".format(INPUT_FILE_NAME))
+        logging.error("Could not read input file: {}".format(INPUT_FILE_NAME))
