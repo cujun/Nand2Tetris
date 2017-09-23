@@ -21,6 +21,9 @@ NAND_GATES = []
 # Index of current pin
 INDEX_PIN = None
 
+# Pins of negation of each input pin
+NEGATION_PINS = dict()
+
 
 # Regular expression matching optional whitespace followed by a token
 # (if group 1 matches) or an error (if group 2 matches).
@@ -42,46 +45,50 @@ def gen_argout(is_root):
         arg_out = "pin{}".format(INDEX_PIN)
         INDEX_PIN = INDEX_PIN + 1
     return arg_out
-def unary_oper_not(arg_in, is_root):
-    """ Unary opeartor about "NOT" function.
-    Same as NOT gate implementation with NAND gates in our HDL format.
-    """
-    arg_out = gen_argout(is_root)
-    add_to_nand(arg_in, arg_in, arg_out)
-    return arg_out
-def binary_oper_and(arg_a, arg_b, is_root):
-    """ Binary opeartor about "AND" function.
-    Same as AND gate implementation with NAND gates in our HDL format.
-    """
-    arg_out = gen_argout(is_root)
-    arg_temp = gen_argout(False)
-    add_to_nand(arg_a, arg_b, arg_temp)
-    add_to_nand(arg_temp, arg_temp, arg_out)
-    return arg_out
-def binary_oper_or(arg_a, arg_b, is_root):
-    """ Binary opeartor about "AND" function.
-    Same as Or gate implementation with NAND gates in our HDL format.
-    """
-    arg_out = gen_argout(is_root)
-    arg_na = gen_argout(False); arg_nb = gen_argout(False)
-    add_to_nand(arg_a, arg_a, arg_na)
-    add_to_nand(arg_b, arg_b, arg_nb)
-    add_to_nand(arg_na, arg_nb, arg_out)
-    return arg_out
-def binary_oper_impli(arg_a, arg_b, is_root):
-    """ Binary opeartor about "Implication(->)" function.
-    """
-    arg_out = gen_argout(is_root)
-    arg_temp = gen_argout(False)
-    add_to_nand(arg_b, arg_b, arg_temp)
-    add_to_nand(arg_a, arg_temp, arg_out)
-    return arg_out
 def binary_oper_nand(arg_a, arg_b, is_root):
     """ Binary opeartor about "NAND" function.
     This exists for the optimization cases like ~(a * b), ~a + ~b.
     """
     arg_out = gen_argout(is_root)
     add_to_nand(arg_a, arg_b, arg_out)
+    return arg_out
+def unary_oper_not(arg_in, is_root):
+    """ Unary opeartor about "NOT" function.
+    Same as NOT gate implementation with NAND gates in our HDL format.
+    """
+    if arg_in in NEGATION_PINS:
+        return NEGATION_PINS[arg_in]
+    if arg_in[0:4] == 'pinN':
+        return arg_in[4:]
+    arg_out = "out" if is_root else 'pinN' + arg_in
+    add_to_nand(arg_in, arg_in, arg_out)
+    NEGATION_PINS[arg_in] = arg_out
+    return arg_out
+def binary_oper_and(arg_a, arg_b, is_root):
+    """ Binary opeartor about "AND" function.
+    Same as AND gate implementation with NAND gates in our HDL format.
+    """
+    # arg_temp = gen_argout(False)
+    # add_to_nand(arg_a, arg_b, arg_temp)
+    arg_temp = binary_oper_nand(arg_a, arg_b, False)
+    arg_out = unary_oper_not(arg_temp, is_root)
+    return arg_out
+def binary_oper_or(arg_a, arg_b, is_root):
+    """ Binary opeartor about "OR" function.
+    Same as OR gate implementation with NAND gates in our HDL format.
+    """
+    arg_na = unary_oper_not(arg_a, False); arg_nb = unary_oper_not(arg_b, False)
+    # arg_out = gen_argout(is_root)
+    # add_to_nand(arg_na, arg_nb, arg_out)
+    arg_out = binary_oper_nand(arg_na, arg_nb, is_root)
+    return arg_out
+def binary_oper_impli(arg_a, arg_b, is_root):
+    """ Binary opeartor about "Implication(->)" function.
+    """
+    arg_temp = unary_oper_not(arg_b, False)
+    # arg_out = gen_argout(is_root)
+    # add_to_nand(arg_a, arg_temp, arg_out)
+    arg_out = binary_oper_nand(arg_a, arg_temp, is_root)
     return arg_out
 # Map from unary operator to special function implementing it.
 UNARY_OPERATORS = {
@@ -229,6 +236,7 @@ if __name__ == '__main__':
             INPUT_PINS = set()
             NAND_GATES = []
             INDEX_PIN = 0
+            NEGATION_PINS = dict()
             print()
 
             # Split current line into 'Name' and 'Formula' parts
