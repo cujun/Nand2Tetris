@@ -68,8 +68,6 @@ def binary_oper_and(arg_a, arg_b, is_root):
     """ Binary opeartor about "AND" function.
     Same as AND gate implementation with NAND gates in our HDL format.
     """
-    # arg_temp = gen_argout(False)
-    # add_to_nand(arg_a, arg_b, arg_temp)
     arg_temp = binary_oper_nand(arg_a, arg_b, False)
     arg_out = unary_oper_not(arg_temp, is_root)
     return arg_out
@@ -78,16 +76,12 @@ def binary_oper_or(arg_a, arg_b, is_root):
     Same as OR gate implementation with NAND gates in our HDL format.
     """
     arg_na = unary_oper_not(arg_a, False); arg_nb = unary_oper_not(arg_b, False)
-    # arg_out = gen_argout(is_root)
-    # add_to_nand(arg_na, arg_nb, arg_out)
     arg_out = binary_oper_nand(arg_na, arg_nb, is_root)
     return arg_out
 def binary_oper_impli(arg_a, arg_b, is_root):
     """ Binary opeartor about "Implication(->)" function.
     """
     arg_temp = unary_oper_not(arg_b, False)
-    # arg_out = gen_argout(is_root)
-    # add_to_nand(arg_a, arg_temp, arg_out)
     arg_out = binary_oper_nand(arg_a, arg_temp, is_root)
     return arg_out
 # Map from unary operator to special function implementing it.
@@ -227,7 +221,7 @@ def error_line(chip_name="???"):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
 
     try:
         lines = list(filter(None, [line.rstrip('\n') for line in open(INPUT_FILE_NAME)]))

@@ -1,0 +1,12 @@
+// Or Chip
+// Generate by cujun's formula compiler
+
+CHIP Or {
+	IN b, a;
+	OUT out;
+
+	PARTS:
+	Nand(a=a, b=a, out=pinNa);
+	Nand(a=b, b=b, out=pinNb);
+	Nand(a=pinNa, b=pinNb, out=out);
+}

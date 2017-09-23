@@ -1,0 +1,13 @@
+// Nor Chip
+// Generate by cujun's formula compiler
+
+CHIP Nor {
+	IN b, a;
+	OUT out;
+
+	PARTS:
+	Nand(a=a, b=a, out=pinNa);
+	Nand(a=b, b=b, out=pinNb);
+	Nand(a=pinNa, b=pinNb, out=pin0);
+	Nand(a=pin0, b=pin0, out=out);
+}

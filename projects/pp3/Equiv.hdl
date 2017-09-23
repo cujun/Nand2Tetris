@@ -1,0 +1,15 @@
+// Equiv Chip
+// Generate by cujun's formula compiler
+
+CHIP Equiv {
+	IN inB, inA;
+	OUT out;
+
+	PARTS:
+	Nand(a=inB, b=inB, out=pinNinB);
+	Nand(a=inA, b=pinNinB, out=pin0);
+	Nand(a=inA, b=inA, out=pinNinA);
+	Nand(a=pinNinA, b=inB, out=pin1);
+	Nand(a=pin0, b=pin1, out=pin2);
+	Nand(a=pin2, b=pin2, out=out);
+}

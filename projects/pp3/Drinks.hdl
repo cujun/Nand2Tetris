@@ -1,0 +1,22 @@
+// Drinks Chip
+// Generate by cujun's formula compiler
+
+CHIP Drinks {
+	IN wine, juice, water;
+	OUT out;
+
+	PARTS:
+	Nand(a=water, b=water, out=pinNwater);
+	Nand(a=wine, b=wine, out=pinNwine);
+	Nand(a=pinNwater, b=pinNwine, out=pin0);
+	Nand(a=wine, b=water, out=pin1);
+	Nand(a=pin1, b=pin1, out=pinNpin1);
+	Nand(a=juice, b=juice, out=pinNjuice);
+	Nand(a=pinNpin1, b=juice, out=pin2);
+	Nand(a=pinNjuice, b=water, out=pin3);
+	Nand(a=pin3, b=wine, out=pin4);
+	Nand(a=pin2, b=pin4, out=pin5);
+	Nand(a=pin5, b=pin5, out=pinNpin5);
+	Nand(a=pin0, b=pinNpin5, out=pin6);
+	Nand(a=pin6, b=pin6, out=out);
+}

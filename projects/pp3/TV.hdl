@@ -1,0 +1,29 @@
+// TV Chip
+// Generate by cujun's formula compiler
+
+CHIP TV {
+	IN c, d, b, a;
+	OUT out;
+
+	PARTS:
+	Nand(a=b, b=b, out=pinNb);
+	Nand(a=a, b=pinNb, out=pin0);
+	Nand(a=c, b=d, out=pin1);
+	Nand(a=c, b=c, out=pinNc);
+	Nand(a=b, b=pinNc, out=pin2);
+	Nand(a=pin2, b=pin2, out=pinNpin2);
+	Nand(a=pinNb, b=c, out=pin3);
+	Nand(a=pin3, b=pin3, out=pinNpin3);
+	Nand(a=pin2, b=pin3, out=pin4);
+	Nand(a=pin4, b=pin4, out=pinNpin4);
+	Nand(a=a, b=a, out=pinNa);
+	Nand(a=b, b=d, out=pin5);
+	Nand(a=pin5, b=pin5, out=pinNpin5);
+	Nand(a=pinNa, b=pin5, out=pin6);
+	Nand(a=pinNpin4, b=pin6, out=pin7);
+	Nand(a=pin7, b=pin7, out=pinNpin7);
+	Nand(a=pin1, b=pinNpin7, out=pin8);
+	Nand(a=pin8, b=pin8, out=pinNpin8);
+	Nand(a=pin0, b=pinNpin8, out=pin9);
+	Nand(a=pin9, b=pin9, out=out);
+}

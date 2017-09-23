@@ -1,0 +1,19 @@
+// LongNameTest Chip
+// Generate by cujun's formula compiler
+
+CHIP LongNameTest {
+	IN longInputA, xyz, xy, xyzuvwabc, xyzu;
+	OUT out;
+
+	PARTS:
+	Nand(a=xyz, b=xyz, out=pinNxyz);
+	Nand(a=pinNxyz, b=xyzu, out=pin0);
+	Nand(a=pin0, b=pin0, out=pinNpin0);
+	Nand(a=xyzuvwabc, b=xyzuvwabc, out=pinNxyzuvwabc);
+	Nand(a=pin0, b=xyzuvwabc, out=pin1);
+	Nand(a=xy, b=xy, out=pinNxy);
+	Nand(a=pin1, b=pin1, out=pinNpin1);
+	Nand(a=pinNxy, b=pinNpin1, out=pin2);
+	Nand(a=pin2, b=pin2, out=pinNpin2);
+	Nand(a=longInputA, b=pinNpin2, out=out);
+}

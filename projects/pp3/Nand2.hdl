@@ -1,0 +1,10 @@
+// Nand2 Chip
+// Generate by cujun's formula compiler
+
+CHIP Nand2 {
+	IN y, x;
+	OUT out;
+
+	PARTS:
+	Nand(a=x, b=y, out=out);
+}

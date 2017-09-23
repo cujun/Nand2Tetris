@@ -1,0 +1,24 @@
+// Boat Chip
+// Generate by cujun's formula compiler
+
+CHIP Boat {
+	IN goat, wolf, cabbage, farmer;
+	OUT out;
+
+	PARTS:
+	Nand(a=wolf, b=wolf, out=pinNwolf);
+	Nand(a=cabbage, b=cabbage, out=pinNcabbage);
+	Nand(a=pinNwolf, b=pinNcabbage, out=pin0);
+	Nand(a=farmer, b=farmer, out=pinNfarmer);
+	Nand(a=goat, b=pinNfarmer, out=pin1);
+	Nand(a=pin1, b=pin1, out=pinNpin1);
+	Nand(a=pin0, b=pinNpin1, out=pin2);
+	Nand(a=pin2, b=pin2, out=pinNpin2);
+	Nand(a=wolf, b=cabbage, out=pin3);
+	Nand(a=goat, b=goat, out=pinNgoat);
+	Nand(a=pinNgoat, b=farmer, out=pin4);
+	Nand(a=pin4, b=pin4, out=pinNpin4);
+	Nand(a=pin3, b=pinNpin4, out=pin5);
+	Nand(a=pin5, b=pin5, out=pinNpin5);
+	Nand(a=pin2, b=pin5, out=out);
+}

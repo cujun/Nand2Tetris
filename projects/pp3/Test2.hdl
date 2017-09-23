@@ -1,0 +1,14 @@
+// Test2 Chip
+// Generate by cujun's formula compiler
+
+CHIP Test2 {
+	IN c, b, a;
+	OUT out;
+
+	PARTS:
+	Nand(a=b, b=b, out=pinNb);
+	Nand(a=c, b=c, out=pinNc);
+	Nand(a=b, b=pinNc, out=pin0);
+	Nand(a=pin0, b=pin0, out=pinNpin0);
+	Nand(a=a, b=pinNpin0, out=out);
+}

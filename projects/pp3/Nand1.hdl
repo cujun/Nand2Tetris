@@ -1,0 +1,10 @@
+// Nand1 Chip
+// Generate by cujun's formula compiler
+
+CHIP Nand1 {
+	IN b, a;
+	OUT out;
+
+	PARTS:
+	Nand(a=a, b=b, out=out);
+}

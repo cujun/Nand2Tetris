@@ -1,0 +1,24 @@
+// Food Chip
+// Generate by cujun's formula compiler
+
+CHIP Food {
+	IN noodles, potatoes, bread;
+	OUT out;
+
+	PARTS:
+	Nand(a=noodles, b=noodles, out=pinNnoodles);
+	Nand(a=potatoes, b=pinNnoodles, out=pin0);
+	Nand(a=pin0, b=pin0, out=pinNpin0);
+	Nand(a=potatoes, b=potatoes, out=pinNpotatoes);
+	Nand(a=pinNpotatoes, b=noodles, out=pin1);
+	Nand(a=pin1, b=pin1, out=pinNpin1);
+	Nand(a=pin0, b=pin1, out=pin2);
+	Nand(a=bread, b=bread, out=pinNbread);
+	Nand(a=potatoes, b=bread, out=pin3);
+	Nand(a=pinNbread, b=potatoes, out=pin4);
+	Nand(a=pin4, b=noodles, out=pin5);
+	Nand(a=pin3, b=pin5, out=pin6);
+	Nand(a=pin6, b=pin6, out=pinNpin6);
+	Nand(a=pin2, b=pinNpin6, out=pin7);
+	Nand(a=pin7, b=pin7, out=out);
+}
