@@ -7,3 +7,25 @@
 // (R0, R1, R2 refer to RAM[0], RAM[1], and RAM[2], respectively.)
 
 // Put your code here.
+    @R0
+    D=M
+    @r0
+    M=D
+    @R2
+    M=0
+    @R1
+    D=M
+    @counter
+    M=D; JEQ
+(MULTIPLY)
+    @r0
+    D=M
+    @R2
+    M=D+M
+    @counter
+    MD=M-1;
+    @MULTIPLY
+    D; JNE
+(INFINITE_LOOP)
+    @INFINITE_LOOP
+    0;JMP
