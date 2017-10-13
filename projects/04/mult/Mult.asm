@@ -16,7 +16,9 @@
     @R1
     D=M
     @counter
-    M=D; JEQ
+    M=D
+    @INFINITE_LOOP
+    D;JEQ
 (MULTIPLY)
     @r0
     D=M
@@ -25,7 +27,7 @@
     @counter
     MD=M-1;
     @MULTIPLY
-    D; JNE
+    D;JNE
 (INFINITE_LOOP)
     @INFINITE_LOOP
     0;JMP

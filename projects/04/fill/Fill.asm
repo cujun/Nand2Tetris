@@ -12,3 +12,33 @@
 // the screen should remain fully clear as long as no key is pressed.
 
 // Put your code here.
+(INFINITE_LOOP)
+    @kbd
+    M=0
+    @SCREEN
+    D=A
+    @screen
+    M=D
+    @KBD
+    D=M
+    @BLACK
+    D;JNE
+    @DRAW
+    0;JMP
+(BLACK)
+    @kbd
+    M=-1
+(DRAW)
+    @kbd
+    D=M
+    @screen
+    M=M+1
+    A=M-1
+    M=D // assignment
+    D=A+1
+    @KBD
+    D=A-D
+    @DRAW
+    D;JGT
+    @INFINITE_LOOP
+    0;JMP
