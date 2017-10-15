@@ -25,7 +25,7 @@
     @R2
     M=D+M
     @counter
-    MD=M-1;
+    MD=M-1
     @MULTIPLY
     D;JNE
 (INFINITE_LOOP)
