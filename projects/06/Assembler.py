@@ -61,9 +61,9 @@ BIN_JUMP = {
 
 # Regular expression matching assembly command
 RE_COMMANDS = (
-    ( 'RE_INST_A', re.compile(r"^@(\d+|[a-zA-Z_.$:][\w.$:]*)(//.*)?$") ),
-    ( 'RE_INST_C', re.compile(r"^([A?M?D?]=)?[+\-!&|01AMD]+(;J[A-Z]{2})?(//.*)?$") ),
-    ( 'RE_LABEL', re.compile(r"^\([a-zA-Z_.$:][\w.$:]*\)(//.*)?$") ),
+    ( 'RE_INST_A', re.compile(r"^@(\d+|[a-zA-Z_.$:][\w.$:]*)$") ),
+    ( 'RE_INST_C', re.compile(r"^([A?M?D?]+=)?[+\-!&|01AMD]+(;J[A-Z]{2})?$") ),
+    ( 'RE_LABEL', re.compile(r"^\([a-zA-Z_.$:][\w.$:]*\)$") ),
     ( 'RE_COMMENT', re.compile(r"^//") ),
 )
 
@@ -136,7 +136,8 @@ def main():
     parsed_lines = []
     for line in lines:
         # Parse current line.
-        curr = ''.join(line.split())
+        curr = re.split(r"//", line)
+        curr = ''.join(curr[0].split())
         logging.debug(curr)
 
         # If new symbol found, register to symbol table.
@@ -153,11 +154,11 @@ def main():
         elif typee == 'RE_LABEL':
             symbol = curr[1:-1]
             if (not is_decimal(symbol)) and (symbol not in symbol_table):
-                logging.debug("Add symbol [{}]".format(symbol))
+                logging.debug("####Add symbol [{}]".format(symbol))
                 symbol_table[symbol] = addr_symbol
                 addr_symbol += 1
         if parsed_line:
-            logging.debug(parsed_line)
+            logging.debug("####{}".format(parsed_line))
             parsed_lines.append(parsed_line)
 
     # Second Pass. (Generate Hack binary code)
