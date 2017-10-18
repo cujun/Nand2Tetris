@@ -123,7 +123,7 @@ def main():
         lines = list(filter(None, [line.strip() for line in open(sys.argv[1])]))
         logging.info("Start assembling [{}].".format(sys.argv[1]))
         filename_asm = (sys.argv[1])[:-4]
-        addr_symbol = 0x0010
+        addr_inst = 0; addr_var = 0x0010
     except IndexError:
         logging.error("Please properly enter the name of assembly file as an argument.")
         return
@@ -154,12 +154,12 @@ def main():
         elif typee == 'RE_LABEL':
             symbol = curr[1:-1]
             if (not is_decimal(symbol)) and (symbol not in symbol_table):
-                logging.debug("####Add symbol [{}]".format(symbol))
-                symbol_table[symbol] = addr_symbol
-                addr_symbol += 1
+                logging.debug("####Add symbol [{}:{}]".format(symbol, addr_inst))
+                symbol_table[symbol] = addr_inst
         if parsed_line:
             logging.debug("####{}".format(parsed_line))
             parsed_lines.append(parsed_line)
+            addr_inst += 1
 
     # Second Pass. (Generate Hack binary code)
     '''

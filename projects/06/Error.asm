@@ -16,9 +16,12 @@
    D=A
    @address
    M=D
+   M=D  M=D
 (LOOP)              // ok ok ok // comment // ok ok:as[faqwojr1935ut9ew0sgkm
    @address
    A=M
+   A=MO
+   A=D             /                         /
    M=-1//is it comment?
    @address
    D=M
