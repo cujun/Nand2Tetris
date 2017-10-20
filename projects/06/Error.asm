@@ -14,12 +14,16 @@
    M=D
    @SCREEN
    D=A
+   AA=D
    @address
    M=D
    M=D  M=D
-(LOOP)              // ok ok ok // comment // ok ok:as[faqwojr1935ut9ew0sgkm
+(LOOP)              // ok ok ok / / comment / / ok ok:as[faqwojr1935ut9ew0sgkm
    @address
    A=M
+   A=MM
+   D=M+M
+   D=M+D
    A=MO
    A=D             /                         /
    M=-1//is it comment?
@@ -31,8 +35,11 @@
    @0/          // This is error
    @address
    M=D
+   DA=D
    @counter
    MD=M-1
+   MAD=M-1
+   DM=M-1
    @LOOP
    D;JGT
 (INFINITE_LOOP)

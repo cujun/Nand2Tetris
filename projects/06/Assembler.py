@@ -112,13 +112,13 @@ def is_decimal(s):
     return s.isdecimal()
 
 def error_line():
-    logging.warning("Format of some instruction is not correct, so generated hack file may be a garbage...")
+    logging.error("Some instruction is not correct, so generated hack file may be a garbage...")
 
 
 
 
 def main():
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
 
     # Initializations.
     try:
@@ -164,6 +164,9 @@ def main():
             if (not is_decimal(symbol)) and (symbol not in symbol_table):
                 logging.debug("[First Pass] Add symbol <{}:{}>".format(symbol, addr_inst))
                 symbol_table[symbol] = addr_inst
+        else:
+            error_line()
+            continue
         if parsed_line:
             logging.debug("[First Pass] Code for later <{}>".format(parsed_line))
             parsed_lines.append(parsed_line)
@@ -190,12 +193,12 @@ def main():
                     addr_var += 1
             elif parsed_line[0] == 'RE_INST_C':
                 bin_code = "111{}{}{}".format(BIN_COMP.get(parsed_line[2], ''), BIN_DEST.get(parsed_line[1], ''), BIN_JUMP.get(parsed_line[3], ''))
+                if len(bin_code) != 16:
+                    bin_code = "2" * 16
+                    error_line()
             # Write binary code to .hack
-            if len(bin_code) == 16:
-                logging.debug("[Second Pass] Gen code <{}>".format(bin_code))
-                f_hack.write("{}\n".format(bin_code))
-            else:
-                error_line()
+            logging.debug("[Second Pass] Gen code <{}>".format(bin_code))
+            f_hack.write("{}\n".format(bin_code))
     logging.debug("[Second Pass] Done")
     # End of Second Pass.
     
