@@ -33,6 +33,7 @@
    D=D+A// yeah
    @0       / / This is error comment
    @0/          // This is error
+   @32768       // Also error for overflow
    @address
    M=D
    DA=D

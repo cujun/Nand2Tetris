@@ -193,9 +193,9 @@ def main():
                     addr_var += 1
             elif parsed_line[0] == 'RE_INST_C':
                 bin_code = "111{}{}{}".format(BIN_COMP.get(parsed_line[2], ''), BIN_DEST.get(parsed_line[1], ''), BIN_JUMP.get(parsed_line[3], ''))
-                if len(bin_code) != 16:
-                    bin_code = "2" * 16
-                    error_line()
+            if len(bin_code) != 16:
+                bin_code = "2" * 16
+                error_line()
             # Write binary code to .hack
             logging.debug("[Second Pass] Gen code <{}>".format(bin_code))
             f_hack.write("{}\n".format(bin_code))
