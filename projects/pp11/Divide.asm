@@ -1,0 +1,55 @@
+    @32767
+    D=A
+    @limit
+    M=D+1
+    @R2
+    M=0
+    @R0
+    D=M
+    @R3
+    M=D
+(ROUND_LOOP)
+    @R1
+    D=M-D // R1-R3
+    @INFINITE_LOOP
+    D;JGT
+    @exp2
+    M=1
+    @R1
+    D=M
+    @r1exp2
+    M=D
+(EXP2_LOOP)
+    @limit
+    D=D&M
+    @END_ROUND
+    D;JNE
+    @r1exp2
+    D=M
+    D=D+M
+    @R3
+    D=M-D // R3-R1*exp2
+    @END_ROUND
+    D;JLT
+    @exp2
+    D=M
+    M=D+M
+    @r1exp2
+    D=M
+    MD=D+M
+    @EXP2_LOOP
+    0;JMP
+(END_ROUND)
+    @exp2
+    D=M
+    @R2
+    M=D+M
+    @r1exp2
+    D=M
+    @R3
+    MD=M-D
+    @ROUND_LOOP
+    0;JMP
+(INFINITE_LOOP)
+    @INFINITE_LOOP
+    0;JMP
