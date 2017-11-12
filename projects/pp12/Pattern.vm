@@ -17,7 +17,22 @@
 //
 // Pattern.lines(x, y, d)
 function Pattern.lines 1
-// not implemented yet
+label loop_line
+push local 0
+push constant 255
+gt
+if-goto end
+push argument 0
+push argument 1
+push constant 511
+push local 0
+call Screen.drawLine 4
+push local 0
+push argument 2
+add
+pop local 0
+goto loop_line
+label end
 return
 // Pattern.disk(x, y, r, xstep)
 // local variables: curx, cury, prevx, prevy, up
