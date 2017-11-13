@@ -1,0 +1,65 @@
+// -*- java -*-
+
+class Board {
+  field Array a;
+
+  constructor Board new() {
+    // todo
+    return this;
+  }
+
+  // draw the board on the screen
+  method void draw() {
+    var int i;
+    let i = 0;
+    do Screen.clearScreen();
+    while (i < 16) {
+      do drawField(i);
+      let i = i + 1;
+    }
+    return;
+  }
+
+  method void drawField(int i) {
+    var int x, y;
+    let y = i / 4;
+    let x = i - (4*y);
+    do Screen.setColor(true);
+    do Screen.drawRectangle(x*64 + 128, y*64, x*64 + 60 + 128, y * 64 + 60);
+    do Screen.setColor(false);
+    do Screen.drawRectangle(x*64 + 3 + 128, y*64 + 3,
+			    x*64 + 57 + 128, y * 64 + 57);
+    do Output.moveCursor(y * 6 + 2, 8 * x + 20);
+    do Output.printInt(a[i]);
+    return;
+  }
+
+  // insert 2 (with probability 90%) or 4 (with probability 10%)
+  // at a random location
+  // returns true if insertion succeeded
+  method boolean insert() {
+    // todo
+    return true;
+  }
+
+  // perform a left push, return number of points gained
+  method int pushLeft() {
+    // todo
+    return 0;
+  }
+
+  method int pushUp() {
+    // todo
+    return 0;
+  }
+
+  method int pushDown() {
+    // todo
+    return 0;
+  }
+
+  method int pushRight() {
+    // todo
+    return 0;
+  }
+}
