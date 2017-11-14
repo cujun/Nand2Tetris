@@ -4,7 +4,15 @@ class Board {
   field Array a;
 
   constructor Board new() {
-    // todo
+    var int i;
+
+    let a = Array.new(16);
+    let i = 0;
+    while (i < 16) {
+        let a[i] = 0;
+        let i = i+1;
+    }
+
     return this;
   }
 
