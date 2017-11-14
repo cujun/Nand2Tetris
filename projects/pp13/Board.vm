@@ -93,6 +93,47 @@ push constant 60
 add
 call Screen.drawRectangle 4
 pop temp 0
+push argument 1
+push this 0
+add
+pop pointer 1
+push that 0
+push constant 0
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+call Screen.setColor 1
+pop temp 0
+push local 0
+push constant 64
+call Math.multiply 2
+push constant 1
+add
+push constant 128
+add
+push local 1
+push constant 64
+call Math.multiply 2
+push constant 1
+add
+push local 0
+push constant 64
+call Math.multiply 2
+push constant 59
+add
+push constant 128
+add
+push local 1
+push constant 64
+call Math.multiply 2
+push constant 59
+add
+call Screen.drawRectangle 4
+pop temp 0
+goto IF_END0
+label IF_FALSE0
 push constant 0
 call Screen.setColor 1
 pop temp 0
@@ -141,6 +182,7 @@ pop pointer 1
 push that 0
 call Output.printInt 1
 pop temp 0
+label IF_END0
 push constant 0
 return
 function Board.insert 0

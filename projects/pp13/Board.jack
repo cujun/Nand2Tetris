@@ -34,11 +34,17 @@ class Board {
     let x = i - (4*y);
     do Screen.setColor(true);
     do Screen.drawRectangle(x*64 + 128, y*64, x*64 + 60 + 128, y * 64 + 60);
-    do Screen.setColor(false);
-    do Screen.drawRectangle(x*64 + 3 + 128, y*64 + 3,
-			    x*64 + 57 + 128, y * 64 + 57);
-    do Output.moveCursor(y * 6 + 2, 8 * x + 20);
-    do Output.printInt(a[i]);
+    if (a[i] = 0) {
+      do Screen.setColor(false);
+      do Screen.drawRectangle(x*64 + 1 + 128, y*64 + 1,
+                    x*64 + 59 + 128, y * 64 + 59);
+    } else {
+      do Screen.setColor(false);
+      do Screen.drawRectangle(x*64 + 3 + 128, y*64 + 3,
+                    x*64 + 57 + 128, y * 64 + 57);
+      do Output.moveCursor(y * 6 + 2, 8 * x + 20);
+      do Output.printInt(a[i]);
+    }
     return;
   }
 
