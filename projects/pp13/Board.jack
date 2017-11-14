@@ -10,7 +10,7 @@ class Board {
     let i = 0;
     while (i < 16) {
         let a[i] = 0;
-        let i = i+1;
+        let i = i + 1;
     }
 
     return this;
@@ -52,7 +52,36 @@ class Board {
   // at a random location
   // returns true if insertion succeeded
   method boolean insert() {
-    // todo
+    var int target, num;
+    var int i;
+
+    let i = 0;
+    while (i < 16) {
+      if (a[i] = 0) {
+        let i = 100;
+      } else {
+        let i = i + 1;
+      }
+    }
+    if (~(i = 100)) {
+      return false;
+    }
+
+    let target = -1;
+    while (target < 0) {
+      let target = LCGRandom.randRange(0, 15);
+      if (~(a[target] = 0)) {
+        let target = -1;
+      }
+    }
+    let num = LCGRandom.randRange(0, 9);
+    if (num = 0) {
+      let num = 4;
+    } else {
+      let num = 2;
+    }
+    let a[target] = num;
+
     return true;
   }
 
