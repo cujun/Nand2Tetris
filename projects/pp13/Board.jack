@@ -87,7 +87,7 @@ class Board {
 
   // perform a left push, return number of points gained
   method int pushLeft() {
-    var int i, j, k;
+    var int i, j;
     var int idx, curr, last, val;
     var int score;
     let score = 0;
@@ -123,33 +123,71 @@ class Board {
         let a[idx] = val;
         let j = j + 1;
       }
-
-      /*
-      let j = 0;
-      while (j < 4) {
-        if (a[i*4 + j] < 0) {
-          let score = score - a[i*4 + j];
-          let a[i*4 + j] = -a[i*4 + j];
-        }
-      }
-      */
       let i = i + 1;
     }
     return score;
   }
 
+  method void swap_idx(int sw1, int sw2) {
+    var int temp;
+    let temp = a[sw1];
+    let a[sw1] = a[sw2];
+    let a[sw2] = temp;
+    return;
+  }
+  method void mirror() {
+    var int i;
+
+    let i = 0;
+    while (i < 4) {
+      do swap_idx(i*4+0, i*4+3);
+      do swap_idx(i*4+1, i*4+2);
+      let i = i + 1;
+    }
+    return;
+  }
+  method void transpose() {
+    var int i, j;
+    var int idx;
+
+    let i = 0;
+    while (i < 4) {
+      let j = i + 1;
+      while (j < 4) {
+        do swap_idx(i*4 + j, j*4 + i);
+        let j = j + 1;
+      }
+      let i = i + 1;
+    }
+    return;
+  }
+
   method int pushUp() {
-    // todo
-    return 0;
+    var int score;
+
+    do transpose();
+    let score = pushLeft();
+    do transpose();
+    return score;
   }
 
   method int pushDown() {
-    // todo
-    return 0;
+    var int score;
+
+    do transpose();
+    do mirror();
+    let score = pushLeft();
+    do mirror();
+    do transpose();
+    return score;
   }
 
   method int pushRight() {
-    // todo
-    return 0;
+    var int score;
+
+    do mirror();
+    let score = pushLeft();
+    do mirror();
+    return score;
   }
 }
