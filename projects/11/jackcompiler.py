@@ -3,7 +3,7 @@
 #
 
 import tokens
-import parser
+import jackparser
 from parsetree import *
 import sys, os
 
@@ -166,8 +166,8 @@ def main():
   jclasses = []
   try:
     for fname in fnames:
-      jclasses.append(parser.parse(fname))
-  except parser.InputError as e:
+      jclasses.append(jackparser.parse(fname))
+  except jackparser.InputError as e:
     print("Error:", e.msg)
     print("In file '%s', line %d, column %d" %
           (e.token.fname, e.token.lineno, e.token.pos))
