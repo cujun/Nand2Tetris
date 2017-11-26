@@ -67,6 +67,7 @@ class JackCompiler():
 
   # let is of type LetStatement
   def compile_let(self, jclass, sb, let):
+    print("@@@{}@@@".format(type(let)))
     raise NotImplementedError
 
   # st is of type CallExpression
@@ -76,10 +77,12 @@ class JackCompiler():
 
   # ifst is of type IfStatement
   def compile_if(self, jclass, sb, ifst):
+    print("@@@{}@@@".format(ifst))
     raise NotImplementedError
 
   # whilest is of type WhileStatement
   def compile_while(self, jclass, sb, whilest):
+    print("@@@{}@@@".format(whilest))
     raise NotImplementedError
 
   # st is of type ReturnStatement
@@ -131,19 +134,39 @@ class JackCompiler():
 
   # var is of type VariableExpression
   def compile_variable(self, jclass, sb, var):
-    raise NotImplementedError
+    vm_name = ""
+    for idx, local in enumerate(sb.locals):
+      if local[0] == var.name:
+        vm_name = "local {}".format(idx)
+    for idx, static in enumerate(jclass.statics):
+      if static[0] == var.name:
+        vm_name = "static {}".format(idx)
+    # TODO(cujun): Should resolve 'field' variable case
+    self.out.write("push {}\n".format(vm_name))
+    if var.index is not None:
+      self.compile_expression(jclass, sb, var.index)
+      self.out.write("add\npop pointer 1\npush that 0\n")
 
   # call is of type CallExpression
   def compile_call(self, jclass, sb, call):
-    raise NotImplementedError
+    if call.container is None:
+      # TODO(cujun): Should resolve the form of "method_name"
+      pass
+    else:
+      # TODO(cujun): Should resolve the form of "variable.method_name"
+      callee = "{}.{}".format(call.container, call.name)
+    self.out.write("call {} {}\n".format(callee, len(call.arguments)))
 
   # binop is of type BinaryOperation
   def compile_binaryop(self, jclass, sb, binop):
-    raise NotImplementedError
+    self.compile_expression(jclass, sb, binop.left)
+    self.compile_expression(jclass, sb, binop.right)
+    self.out.write("{}\n".format(binopmap[binop.operator]))
 
   # unop is of type UnaryOperation
   def compile_unaryop(self, jclass, sb, unop):
-    raise NotImplementedError
+    self.compile_expression(jclass, sb, unop.argument)
+    self.out.write("not\n" if unop.operator == '~' else "neg\n")
   
 # --------------------------------------------------------------------
 
