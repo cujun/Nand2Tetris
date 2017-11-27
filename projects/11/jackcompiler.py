@@ -18,6 +18,13 @@ binopmap = { "+" : "add",
              ">" : "gt",
              "<" : "lt",
              "=" : "eq" }
+
+def static_vars(**kwargs):
+    def decorate(func):
+        for k in kwargs:
+            setattr(func, k, kwargs[k])
+        return func
+    return decorate
   
 # --------------------------------------------------------------------
 
@@ -67,8 +74,24 @@ class JackCompiler():
 
   # let is of type LetStatement
   def compile_let(self, jclass, sb, let):
-    print("@@@{}@@@".format(type(let)))
-    raise NotImplementedError
+    self.compile_expression(jclass, sb, let.expr)
+    lval = ""
+    for idx, argument in enumerate(sb.arguments):
+      if argument[0] == let.vname:
+        lval = "argument {}".format(idx)
+    for idx, local in enumerate(sb.locals):
+      if local[0] == let.vname:
+        lval = "local {}".format(idx)
+    for idx, static in enumerate(jclass.statics):
+      if static[0] == let.vname:
+        lval = "static {}".format(idx)
+    # TODO(cujun): Should resolve 'field' variable case
+    if let.index is None:
+      self.out.write("pop {}\n".format(lval))
+    else:
+      self.out.write("push {}\n".format(lval))
+      self.compile_expression(jclass, sb, let.index)
+      self.out.write("add\npop pointer 1\npop that 0\n")
 
   # st is of type CallExpression
   def compile_do(self, jclass, sb, st):
@@ -76,14 +99,38 @@ class JackCompiler():
     self.out.write("pop temp 0 // void\n")
 
   # ifst is of type IfStatement
+  @static_vars(counter=0)
   def compile_if(self, jclass, sb, ifst):
-    print("@@@{}@@@".format(ifst))
-    raise NotImplementedError
+    # list of needed labels
+    label_basic = "{}.{}.IF{}".format(jclass.name.upper(), sb.name.upper(), JackCompiler.compile_if.counter)
+    label_else, label_end = label_basic + "_ELSE", label_basic + "_END"
+    JackCompiler.compile_if.counter += 1
+
+    self.compile_expression(jclass, sb, ifst.expr)
+    self.out.write("not\nif-goto {}\n".format(label_else))
+    for statement in ifst.if_statements:
+      self.compile_statement(jclass, sb, statement)
+    self.out.write("goto {}\n".format(label_end))
+    self.out.write("label {}\n".format(label_else))
+    for statement in ifst.else_statements if ifst.else_statements is not None else []: # exceptional case
+      self.compile_statement(jclass, sb, statement)
+    self.out.write("label {}\n".format(label_end))
 
   # whilest is of type WhileStatement
+  @static_vars(counter=0)
   def compile_while(self, jclass, sb, whilest):
-    print("@@@{}@@@".format(whilest))
-    raise NotImplementedError
+    # list of needed labels
+    label_basic = "{}.{}.WHILE{}".format(jclass.name.upper(), sb.name.upper(), JackCompiler.compile_while.counter)
+    label_loop, label_end = label_basic + "_LOOP", label_basic + "_END"
+    JackCompiler.compile_while.counter += 1
+
+    self.out.write("label {}\n".format(label_loop))
+    self.compile_expression(jclass, sb, whilest.expr)
+    self.out.write("not\nif-goto {}\n".format(label_end))
+    for statement in whilest.statements:
+      self.compile_statement(jclass, sb, statement)
+    self.out.write("goto {}\n".format(label_loop))
+    self.out.write("label {}\n".format(label_end))
 
   # st is of type ReturnStatement
   def compile_return(self, jclass, sb, st):
@@ -135,6 +182,9 @@ class JackCompiler():
   # var is of type VariableExpression
   def compile_variable(self, jclass, sb, var):
     vm_name = ""
+    for idx, argument in enumerate(sb.arguments):
+      if argument[0] == var.name:
+        vm_name = "argument {}".format(idx)
     for idx, local in enumerate(sb.locals):
       if local[0] == var.name:
         vm_name = "local {}".format(idx)
@@ -149,6 +199,8 @@ class JackCompiler():
 
   # call is of type CallExpression
   def compile_call(self, jclass, sb, call):
+    for argument in call.arguments:
+      self.compile_expression(jclass, sb, argument)
     if call.container is None:
       # TODO(cujun): Should resolve the form of "method_name"
       pass
