@@ -1,0 +1,328 @@
+// class PongGame
+// constructor PongGame PongGame.new
+function PongGame.new 0
+push constant 7
+call Memory.alloc 1
+pop pointer 0
+call Screen.clearScreen 0
+pop temp 0 // void
+push constant 50
+pop this 6
+push constant 230
+push constant 229
+push this 6
+push constant 7
+call Bat.new 4
+pop this 0
+push constant 253
+push constant 222
+push constant 0
+push constant 511
+push constant 0
+push constant 229
+call Ball.new 6
+pop this 1
+push this 1
+push constant 400
+push constant 0
+call Ball.setDestination 3
+pop temp 0 // void
+push constant 0
+push constant 238
+push constant 511
+push constant 240
+call Screen.drawRectangle 4
+pop temp 0 // void
+push constant 22
+push constant 0
+call Output.moveCursor 2
+pop temp 0 // void
+push constant 8 // "Score: 0"
+call String.new 1
+push constant 83 // 'S'
+call String.appendChar 2
+push constant 99 // 'c'
+call String.appendChar 2
+push constant 111 // 'o'
+call String.appendChar 2
+push constant 114 // 'r'
+call String.appendChar 2
+push constant 101 // 'e'
+call String.appendChar 2
+push constant 58 // ':'
+call String.appendChar 2
+push constant 32 // ' '
+call String.appendChar 2
+push constant 48 // '0'
+call String.appendChar 2
+call Output.printString 1
+pop temp 0 // void
+push constant 0 // false
+pop this 3
+push constant 0
+pop this 4
+push constant 0
+pop this 2
+push constant 0
+pop this 5
+push pointer 0 // this
+return
+// method void PongGame.dispose
+function PongGame.dispose 0
+push argument 0
+pop pointer 0
+push this 0
+call Bat.dispose 1
+pop temp 0 // void
+push this 1
+call Ball.dispose 1
+pop temp 0 // void
+push pointer 0 // this
+call Memory.deAlloc 1
+pop temp 0 // void
+push constant 0
+return
+// function void PongGame.newInstance
+function PongGame.newInstance 0
+call PongGame.new 0
+pop static 0
+push constant 0
+return
+// function PongGame PongGame.getInstance
+function PongGame.getInstance 0
+push static 0
+return
+// method void PongGame.run
+function PongGame.run 1
+push argument 0
+pop pointer 0
+label PONGGAME.RUN.WHILE0_LOOP
+push this 3
+not
+not
+if-goto PONGGAME.RUN.WHILE0_END
+label PONGGAME.RUN.WHILE1_LOOP
+push local 0
+push constant 0
+eq
+push this 3
+not
+and
+not
+if-goto PONGGAME.RUN.WHILE1_END
+call Keyboard.keyPressed 0
+pop local 0
+push this 0
+call Bat.move 1
+pop temp 0 // void
+push pointer 0
+call PongGame.moveBall 1
+pop temp 0 // void
+push constant 50
+call Sys.wait 1
+pop temp 0 // void
+goto PONGGAME.RUN.WHILE1_LOOP
+label PONGGAME.RUN.WHILE1_END
+push local 0
+push constant 130
+eq
+not
+if-goto PONGGAME.RUN.IF17_ELSE
+push this 0
+push constant 1
+call Bat.setDirection 2
+pop temp 0 // void
+goto PONGGAME.RUN.IF17_END
+label PONGGAME.RUN.IF17_ELSE
+push local 0
+push constant 132
+eq
+not
+if-goto PONGGAME.RUN.IF18_ELSE
+push this 0
+push constant 2
+call Bat.setDirection 2
+pop temp 0 // void
+goto PONGGAME.RUN.IF18_END
+label PONGGAME.RUN.IF18_ELSE
+push local 0
+push constant 140
+eq
+not
+if-goto PONGGAME.RUN.IF19_ELSE
+push constant 0 // true
+not
+pop this 3
+goto PONGGAME.RUN.IF19_END
+label PONGGAME.RUN.IF19_ELSE
+label PONGGAME.RUN.IF19_END
+label PONGGAME.RUN.IF18_END
+label PONGGAME.RUN.IF17_END
+label PONGGAME.RUN.WHILE2_LOOP
+push local 0
+push constant 0
+eq
+not
+push this 3
+not
+and
+not
+if-goto PONGGAME.RUN.WHILE2_END
+call Keyboard.keyPressed 0
+pop local 0
+push this 0
+call Bat.move 1
+pop temp 0 // void
+push pointer 0
+call PongGame.moveBall 1
+pop temp 0 // void
+push constant 50
+call Sys.wait 1
+pop temp 0 // void
+goto PONGGAME.RUN.WHILE2_LOOP
+label PONGGAME.RUN.WHILE2_END
+goto PONGGAME.RUN.WHILE0_LOOP
+label PONGGAME.RUN.WHILE0_END
+push this 3
+not
+if-goto PONGGAME.RUN.IF20_ELSE
+push constant 10
+push constant 27
+call Output.moveCursor 2
+pop temp 0 // void
+push constant 9 // "Game Over"
+call String.new 1
+push constant 71 // 'G'
+call String.appendChar 2
+push constant 97 // 'a'
+call String.appendChar 2
+push constant 109 // 'm'
+call String.appendChar 2
+push constant 101 // 'e'
+call String.appendChar 2
+push constant 32 // ' '
+call String.appendChar 2
+push constant 79 // 'O'
+call String.appendChar 2
+push constant 118 // 'v'
+call String.appendChar 2
+push constant 101 // 'e'
+call String.appendChar 2
+push constant 114 // 'r'
+call String.appendChar 2
+call Output.printString 1
+pop temp 0 // void
+goto PONGGAME.RUN.IF20_END
+label PONGGAME.RUN.IF20_ELSE
+label PONGGAME.RUN.IF20_END
+push constant 0
+return
+// method void PongGame.moveBall
+function PongGame.moveBall 5
+push argument 0
+pop pointer 0
+push this 1
+call Ball.move 1
+pop this 2
+push this 2
+push constant 0
+gt
+push this 2
+push this 5
+eq
+not
+and
+not
+if-goto PONGGAME.MOVEBALL.IF21_ELSE
+push this 2
+pop this 5
+push constant 0
+pop local 0
+push this 0
+call Bat.getLeft 1
+pop local 1
+push this 0
+call Bat.getRight 1
+pop local 2
+push this 1
+call Ball.getLeft 1
+pop local 3
+push this 1
+call Ball.getRight 1
+pop local 4
+push this 2
+push constant 4
+eq
+not
+if-goto PONGGAME.MOVEBALL.IF22_ELSE
+push local 1
+push local 4
+gt
+push local 2
+push local 3
+lt
+or
+pop this 3
+push this 3
+not
+not
+if-goto PONGGAME.MOVEBALL.IF23_ELSE
+push local 4
+push local 1
+push constant 10
+add
+lt
+not
+if-goto PONGGAME.MOVEBALL.IF24_ELSE
+push constant 1
+neg
+pop local 0
+goto PONGGAME.MOVEBALL.IF24_END
+label PONGGAME.MOVEBALL.IF24_ELSE
+push local 3
+push local 2
+push constant 10
+sub
+gt
+not
+if-goto PONGGAME.MOVEBALL.IF25_ELSE
+push constant 1
+pop local 0
+goto PONGGAME.MOVEBALL.IF25_END
+label PONGGAME.MOVEBALL.IF25_ELSE
+label PONGGAME.MOVEBALL.IF25_END
+label PONGGAME.MOVEBALL.IF24_END
+push this 6
+push constant 2
+sub
+pop this 6
+push this 0
+push this 6
+call Bat.setWidth 2
+pop temp 0 // void
+push this 4
+push constant 1
+add
+pop this 4
+push constant 22
+push constant 7
+call Output.moveCursor 2
+pop temp 0 // void
+push this 4
+call Output.printInt 1
+pop temp 0 // void
+goto PONGGAME.MOVEBALL.IF23_END
+label PONGGAME.MOVEBALL.IF23_ELSE
+label PONGGAME.MOVEBALL.IF23_END
+goto PONGGAME.MOVEBALL.IF22_END
+label PONGGAME.MOVEBALL.IF22_ELSE
+label PONGGAME.MOVEBALL.IF22_END
+push this 1
+push local 0
+call Ball.bounce 2
+pop temp 0 // void
+goto PONGGAME.MOVEBALL.IF21_END
+label PONGGAME.MOVEBALL.IF21_ELSE
+label PONGGAME.MOVEBALL.IF21_END
+push constant 0
+return

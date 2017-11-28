@@ -1,10 +1,6 @@
 // class Main
 // function void Main.main
 function Main.main 1
-push constant 8000
-pop pointer 1
-push constant 12345
-pop that 0
 push constant 8001
 push constant 16
 push constant 1

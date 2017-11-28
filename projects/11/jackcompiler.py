@@ -48,7 +48,10 @@ class JackCompiler():
   def compile_subroutine(self, jclass, sb):
     self.out.write("function %s.%s %d\n" %
                    (jclass.name, sb.name, len(sb.locals)))
-    # some more work is needed here for methods and constructors
+    if sb.kind == 'method':
+      self.out.write("push argument 0\npop pointer 0\n")
+    elif sb.kind == 'constructor':
+      self.out.write("push constant {}\ncall Memory.alloc 1\npop pointer 0\n".format(len(jclass.fields)))
     for st in sb.statements:
       self.compile_statement(jclass, sb, st)
 
@@ -75,17 +78,18 @@ class JackCompiler():
   # let is of type LetStatement
   def compile_let(self, jclass, sb, let):
     self.compile_expression(jclass, sb, let.expr)
-    lval = ""
     for idx, argument in enumerate(sb.arguments):
       if argument[0] == let.vname:
-        lval = "argument {}".format(idx)
+        lval = "argument {}".format(idx + (1 if sb.kind == 'method' else 0))
     for idx, local in enumerate(sb.locals):
       if local[0] == let.vname:
         lval = "local {}".format(idx)
     for idx, static in enumerate(jclass.statics):
       if static[0] == let.vname:
         lval = "static {}".format(idx)
-    # TODO(cujun): Should resolve 'field' variable case
+    for idx, field in enumerate(jclass.fields):
+      if field[0] == let.vname:
+        lval = "this {}".format(idx)
     if let.index is None:
       self.out.write("pop {}\n".format(lval))
     else:
@@ -181,17 +185,18 @@ class JackCompiler():
 
   # var is of type VariableExpression
   def compile_variable(self, jclass, sb, var):
-    vm_name = ""
     for idx, argument in enumerate(sb.arguments):
       if argument[0] == var.name:
-        vm_name = "argument {}".format(idx)
+        vm_name = "argument {}".format(idx + (1 if sb.kind == 'method' else 0))
     for idx, local in enumerate(sb.locals):
       if local[0] == var.name:
         vm_name = "local {}".format(idx)
     for idx, static in enumerate(jclass.statics):
       if static[0] == var.name:
         vm_name = "static {}".format(idx)
-    # TODO(cujun): Should resolve 'field' variable case
+    for idx, field in enumerate(jclass.fields):
+      if field[0] == var.name:
+        vm_name = "this {}".format(idx)
     self.out.write("push {}\n".format(vm_name))
     if var.index is not None:
       self.compile_expression(jclass, sb, var.index)
@@ -199,15 +204,37 @@ class JackCompiler():
 
   # call is of type CallExpression
   def compile_call(self, jclass, sb, call):
+    is_method = False
+    if call.container is None: # method_name
+      callee = "{}.{}".format(jclass.name, call.name)
+      is_method = True
+      self.out.write("push pointer 0\n")
+    else: # variable.method_name or class_name.function_name
+      class_name = None
+      for idx, argument in enumerate(sb.arguments):
+        if argument[0] == call.container:
+          class_name = argument[1]
+          self.out.write("push argument {}\n".format(idx + (1 if sb.kind == 'method' else 0)))
+      for idx, local in enumerate(sb.locals):
+        if local[0] == call.container:
+          class_name = local[1]
+          self.out.write("push local {}\n".format(idx))
+      for idx, static in enumerate(jclass.statics):
+        if static[0] == call.container:
+          class_name = static[1]
+          self.out.write("push static {}\n".format(idx))
+      for idx, field in enumerate(jclass.fields):
+        if field[0] == call.container:
+          class_name = field[1]
+          self.out.write("push this {}\n".format(idx))
+      if class_name is None: # class_name.function_name
+        class_name = call.container
+      else:
+        is_method = True
+      callee = "{}.{}".format(class_name, call.name)
     for argument in call.arguments:
       self.compile_expression(jclass, sb, argument)
-    if call.container is None:
-      # TODO(cujun): Should resolve the form of "method_name"
-      pass
-    else:
-      # TODO(cujun): Should resolve the form of "variable.method_name"
-      callee = "{}.{}".format(call.container, call.name)
-    self.out.write("call {} {}\n".format(callee, len(call.arguments)))
+    self.out.write("call {} {}\n".format(callee, len(call.arguments) + (1 if is_method else 0)))
 
   # binop is of type BinaryOperation
   def compile_binaryop(self, jclass, sb, binop):
