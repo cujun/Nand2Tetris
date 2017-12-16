@@ -70,20 +70,39 @@ def main():
             continue
         # Decode instruction.
         if tokens[0] == 'push':
+            operand = int(tokens[2])
             if tokens[1] == 'constant':
-                code = [ '@{}'.format(int(tokens[2])), 'D=A', '@SP', 'AM=M+1', 'A=A-1', 'M=D' ]
+                code = [ '@{}'.format(operand), 'D=A', '@SP', 'AM=M+1', 'A=A-1', 'M=D' ]
             elif tokens[1] == 'local':
-                pass
+                code = [ '@{}'.format(operand), 'D=A', '@LCL', 'A=D+M', 'D=M', '@SP', 'AM=M+1', 'A=A-1', 'M=D' ]
             elif tokens[1] == 'argument':
-                pass
+                code = [ '@{}'.format(operand), 'D=A', '@ARG', 'A=D+M', 'D=M', '@SP', 'AM=M+1', 'A=A-1', 'M=D' ]
             elif tokens[1] == 'this':
-                pass
+                code = [ '@{}'.format(operand), 'D=A', '@THIS', 'A=D+M', 'D=M', '@SP', 'AM=M+1', 'A=A-1', 'M=D' ]
             elif tokens[1] == 'that':
+                code = [ '@{}'.format(operand), 'D=A', '@THAT', 'A=D+M', 'D=M', '@SP', 'AM=M+1', 'A=A-1', 'M=D' ]
+            elif tokens[1] == 'temp':
+                code = [ '@{}'.format(operand), 'D=A', '@R5', 'A=D+A', 'D=M', '@SP', 'AM=M+1', 'A=A-1', 'M=D' ]
+            elif tokens[1] == 'pointer':
                 pass
             elif tokens[1] == 'static':
                 pass
         elif tokens[0] == 'pop':
-            pass
+            operand = int(tokens[2])
+            if tokens[1] == 'local':
+                code = [ '@{}'.format(operand), 'D=A', '@LCL', 'D=D+M', '@R13', 'M=D', '@SP', 'AM=M-1', 'D=M', '@R13', 'A=M', 'M=D']
+            elif tokens[1] == 'argument':
+                code = [ '@{}'.format(operand), 'D=A', '@ARG', 'D=D+M', '@R13', 'M=D', '@SP', 'AM=M-1', 'D=M', '@R13', 'A=M', 'M=D']
+            elif tokens[1] == 'this':
+                code = [ '@{}'.format(operand), 'D=A', '@THIS', 'D=D+M', '@R13', 'M=D', '@SP', 'AM=M-1', 'D=M', '@R13', 'A=M', 'M=D']
+            elif tokens[1] == 'that':
+                code = [ '@{}'.format(operand), 'D=A', '@THAT', 'D=D+M', '@R13', 'M=D', '@SP', 'AM=M-1', 'D=M', '@R13', 'A=M', 'M=D']
+            elif tokens[1] == 'temp':
+                code = [ '@{}'.format(operand), 'D=A', '@R5', 'D=D+A', '@R13', 'M=D', '@SP', 'AM=M-1', 'D=M', '@R13', 'A=M', 'M=D']
+            elif tokens[1] == 'pointer':
+                pass
+            elif tokens[1] == 'static':
+                pass
         elif tokens[0] == 'add':
             code = [ '@SP', 'AM=M-1', 'D=M', 'A=A-1', 'M=D+M' ]
         elif tokens[0] == 'sub':
