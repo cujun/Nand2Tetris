@@ -11,11 +11,17 @@ import re
 
 # Regular expressions matching each assembly command
 RE_COMMANDS = (
-    ( 'RE_INST_A', re.compile(r"^@(\d+|[a-zA-Z_.$:][\w.$:]*)$") ),
-    ( 'RE_INST_C', re.compile(r"^([A?M?D?]+=)?[+\-!&|01AMD]+(;J[A-Z]{2})?$") ),
-    ( 'RE_LABEL', re.compile(r"^\([a-zA-Z_.$:][\w.$:]*\)$") ),
     ( 'RE_COMMENT', re.compile(r"^//") ),
 )
+
+# Base RAM address for each segment
+BASE_ADDRESS = {
+    'static': 16,
+    'stack': 256,
+    'heap': 2048,
+    'mmapio': 16384,
+    'unused': 24575,
+}
 
 
 
@@ -86,7 +92,7 @@ def main():
             elif tokens[1] == 'pointer':
                 code = [ ('@THIS' if int(tokens[2]) == 0 else '@THAT'), 'D=M' ]
             elif tokens[1] == 'static':
-                pass
+                code = [ '@{}'.format(BASE_ADDRESS['static'] + operand), 'D=M' ]
             code.extend([ '@SP', 'AM=M+1', 'A=A-1', 'M=D' ])
         elif tokens[0] == 'pop':
             operand = int(tokens[2])
@@ -103,7 +109,7 @@ def main():
             elif tokens[1] == 'pointer':
                 code = [ '@SP', 'AM=M-1', 'D=M', ('@THIS' if int(tokens[2]) == 0 else '@THAT'), 'M=D' ]
             elif tokens[1] == 'static':
-                pass
+                code = [ '@SP', 'AM=M-1', 'D=M', '@{}'.format(BASE_ADDRESS['static'] + operand), 'M=D' ]
         elif tokens[0] == 'add':
             code = [ '@SP', 'AM=M-1', 'D=M', 'A=A-1', 'M=D+M' ]
         elif tokens[0] == 'sub':
