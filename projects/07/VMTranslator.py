@@ -87,7 +87,7 @@ def main():
         elif tokens[0] == 'add':
             code = [ '@SP', 'AM=M-1', 'D=M', 'A=A-1', 'M=D+M' ]
         elif tokens[0] == 'sub':
-            code = [ '@SP', 'AM=M-1', 'D=M', 'A=A-1', 'M=D-M' ]
+            code = [ '@SP', 'AM=M-1', 'D=M', 'A=A-1', 'M=M-D' ]
         elif tokens[0] == 'neg':
             code = [ '@SP', 'A=M-1', 'M=-M' ]
         elif tokens[0] == 'eq':
