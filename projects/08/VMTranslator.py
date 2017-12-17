@@ -146,7 +146,6 @@ def main():
             code = [ '@SP', 'AM=M-1', 'D=M', '@{}${}'.format(stack_funcname[-1], labelname), 'D;JNE' ]
         elif tokens[0] == 'function':
             funcname, cnt_localvar = tokens[1], int(tokens[2])
-            stack_funcname.append(funcname)
             code = [ '({})'.format(funcname), '@SP', 'A=M' ]
             for _ in range(cnt_localvar):
                 code.extend([ 'M=0', 'A=A+1' ])
@@ -162,7 +161,19 @@ def main():
             # goto return-address
             code.extend([ '@R14', 'A=M', '0;JMP' ])
         elif tokens[0] == 'call':
-            pass
+            funcname, cnt_arg = tokens[1], int(tokens[2])
+            stack_funcname.append(funcname)
+            # Store RET, LCL, ARG, THIS, THAT
+            code = [ '@RET{}_{}'.format(cond_cnt, funcname), 'D=A', '@SP', 'AM=M+1', 'A=A-1', 'M=D' ]
+            code.extend([ '@LCL', 'D=M', '@SP', 'AM=M+1', 'A=A-1', 'M=D' ])
+            code.extend([ '@ARG', 'D=M', '@SP', 'AM=M+1', 'A=A-1', 'M=D' ])
+            code.extend([ '@THIS', 'D=M', '@SP', 'AM=M+1', 'A=A-1', 'M=D' ])
+            code.extend([ '@THAT', 'D=M', '@SP', 'AM=M+1', 'A=A-1', 'M=D' ])
+            # Set new ARG, LCL
+            code.extend([ '@SP', 'D=M', '@LCL', 'M=D', '@{}'.format(cnt_arg), 'D=D-A', '@5', 'D=D-A', '@ARG', 'M=D' ])
+            # goto function and label return
+            code.extend([ '@{}'.format(funcname), '0;JMP', '(RET{}_{})'.format(cond_cnt, funcname) ])
+            cond_cnt = cond_cnt + 1
         else:
             logging.error("Unexpected insturction... :(")
             return
