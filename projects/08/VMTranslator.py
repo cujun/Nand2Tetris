@@ -61,6 +61,7 @@ def main():
         filename_vm = (sys.argv[1])[:-3]
         f_asm = open("{}.asm".format(filename_vm), 'w')
         cond_cnt = 0
+        stack_funcname = ['']
     except IndexError:
         logging.error("Please properly enter the name of vm file as an argument.")
         return
@@ -136,13 +137,32 @@ def main():
             code = [ '@SP', 'A=M-1', 'M=!M' ]
         elif tokens[0] == 'label':
             labelname = tokens[1]
-            code = [ '({})'.format(labelname) ]
+            code = [ '({}${})'.format(stack_funcname[-1], labelname) ]
         elif tokens[0] == 'goto':
             labelname = tokens[1]
-            code = [ '@{}'.format(labelname), '0;JMP' ]
+            code = [ '@{}${}'.format(stack_funcname[-1], labelname), '0;JMP' ]
         elif tokens[0] == 'if-goto':
             labelname = tokens[1]
-            code = [ '@SP', 'AM=M-1', 'D=M', '@{}'.format(labelname), 'D;JNE' ]
+            code = [ '@SP', 'AM=M-1', 'D=M', '@{}${}'.format(stack_funcname[-1], labelname), 'D;JNE' ]
+        elif tokens[0] == 'function':
+            funcname, cnt_localvar = tokens[1], int(tokens[2])
+            stack_funcname.append(funcname)
+            code = [ '({})'.format(funcname), '@SP', 'A=M' ]
+            for _ in range(cnt_localvar):
+                code.extend([ 'M=0', 'A=A+1' ])
+            code.extend([ 'D=A', '@SP', 'M=D' ])
+        elif tokens[0] == 'return':
+            del stack_funcname[-1]
+            code = [ '@LCL', 'D=M', '@R13','M=D', '@5', 'A=D-A', 'D=M', '@R14', 'M=D', '@SP', 'A=M-1', 'D=M', '@ARG', 'A=M', 'M=D', 'D=A+1', '@SP', 'M=D' ]
+            # Restore THAT, THIS, ARG, LCL
+            code.extend([ '@R13', 'D=M-1', '@R15', 'AM=D', 'D=M', '@THAT', 'M=D' ])
+            code.extend([ '@R15', 'AM=M-1', 'D=M', '@THIS', 'M=D' ])
+            code.extend([ '@R15', 'AM=M-1', 'D=M', '@ARG', 'M=D' ])
+            code.extend([ '@R15', 'AM=M-1', 'D=M', '@LCL', 'M=D' ])
+            # goto return-address
+            code.extend([ '@R14', 'A=M', '0;JMP' ])
+        elif tokens[0] == 'call':
+            pass
         else:
             logging.error("Unexpected insturction... :(")
             return
