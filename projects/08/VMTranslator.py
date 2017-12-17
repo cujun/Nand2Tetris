@@ -93,7 +93,7 @@ def main():
     for filename_vm in filenames_vm:
         logging.debug("vm file: <{}>".format(filename_vm))
         lines = list(filter(None, [line.strip() for line in open(filename_vm)]))
-        curr_funcname = ''
+        curr_funcname, curr_vmname = '', filename_vm.split('/')[-1][:-3]
         for line in lines:
             # Parse current line.
             tokens = re.split(r"//", line)[0].split()
@@ -118,7 +118,7 @@ def main():
                 elif tokens[1] == 'pointer':
                     code = [ ('@THIS' if int(tokens[2]) == 0 else '@THAT'), 'D=M' ]
                 elif tokens[1] == 'static':
-                    code = [ '@{}'.format(BASE_ADDRESS['static'] + operand), 'D=M' ]
+                    code = [ '@{}.{}'.format(curr_vmname, operand), 'D=M' ]
                 code.extend([ '@SP', 'AM=M+1', 'A=A-1', 'M=D' ])
             elif tokens[0] == 'pop':
                 operand = int(tokens[2])
@@ -135,7 +135,7 @@ def main():
                 elif tokens[1] == 'pointer':
                     code = [ '@SP', 'AM=M-1', 'D=M', ('@THIS' if int(tokens[2]) == 0 else '@THAT'), 'M=D' ]
                 elif tokens[1] == 'static':
-                    code = [ '@SP', 'AM=M-1', 'D=M', '@{}'.format(BASE_ADDRESS['static'] + operand), 'M=D' ]
+                    code = [ '@SP', 'AM=M-1', 'D=M', '@{}.{}'.format(curr_vmname, operand), 'M=D' ]
             elif tokens[0] == 'add':
                 code = [ '@SP', 'AM=M-1', 'D=M', 'A=A-1', 'M=D+M' ]
             elif tokens[0] == 'sub':
